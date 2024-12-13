@@ -1,21 +1,5 @@
 // SBA 308: JavaScript Fundamentals
-//
-// Your goal is to analyze and transform this data such that the output of your program
-//  is an ARRAY OF OBJECTS, each containing the following information in the following format:
-// {
-//     // the ID of the learner for which this data has been collected "id": number,
-//     // the learner’s total, weighted average, in which assignments
-//     // with more points_possible should be counted for more
-//     // e.g. a learner with 50/100 on one assignment and 190/200 on another
-//     // would have a weighted average score of 240/300 = 80%.
-//     "avg": number,
-//     // each assignment should have a key with its ID,
-//     // and the value associated with it should be the percentage that
-//     // the learner scored on the assignment (submission.score / points_possible)
-//     <assignment_id>: number,
-//     // if an assignment is not yet due, it should not be included in either
-//     // the average or the keyed dictionary of scores
-// }
+// data provided
 const CourseInfo = {
     id: 451,
     name: "Introduction to JavaScript"
@@ -105,18 +89,97 @@ if (LearnerSubmissions[0].learner_id === 125) {  // index of 0,
 console.log(Amy);
 console.log(Zach);
 
+// go through submissions
+function getLearnerData(course, group, submissions) {
+    // // check if the assignment group matches the  course
+    // if (group.course_id !== course.id) {
+    //     throw new Error("AssignmentGroup course_id does not match CourseInfo id");
+    // }
 
-// let's deal with the simple information first
+    const currentDate = new Date();      // get the current date to compare with assignment due dates
+    const learnersData = {};      // 0bject to store data for each learner
 
-// check if AssignmentGroup and Course match
-console.log(AssignmentGroup.course_id + ' compared to ' + CourseInfo.id) // expect a match
-function checkCourseAssignmentMatch(course, ag) {
-    try {
-        if (ag.course_id !== course.id) {
-            throw new Error('Invalid- AssignmentGroup does not match Course')
+    submissions.forEach(submission => {      // loop through each submission
+        const assignment = group.assignments.find(a => a.id === submission.assignment_id);
+        if (!assignment) {          // find the corresponding assignment for each submission
+            throw new Error("Assignment not found");
         }
-    } catch (error) {
-        console.error('An error has occurred:', error.message)
-    }
+
+
+        // Convert due date and submission date to Date objects for comparison
+        const dueDate = new Date(assignment.due_at);
+        const submittedDate = new Date(submission.submission.submitted_at);
+        // console.log(dueDate);
+        // console.log(dueDate);
+
+        // skip assignments not yet due ... totally looked this up
+        switch (true) {
+            case (dueDate > currentDate):
+                return;
+        }
+
+        // create and initialize object for each learner, check if exists
+        if (!learnersData[submission.learner_id]) {
+            learnersData[submission.learner_id] = {
+                id: submission.learner_id,
+                avg: 0,
+                totalPoints: 0,
+                totalWeightedScore: 0
+            };
+        }
+
+        const learnerData = learnersData[submission.learner_id];
+        console.log(learnerData);
+        let score = submission.submission.score;
+// console.log(score);
+        if (submittedDate > dueDate) {          // deduct 10% if the assignment was submitted late
+            score -= assignment.points_possible * 0.1;
+        }
+
+
+        // calculate percentage score for the assignment and store it
+        learnerData[assignment.id] = (score / assignment.points_possible).toFixed(2); // converts number to string
+        learnerData.totalPoints += assignment.points_possible;
+        learnerData.totalWeightedScore += score;
+    });
+
+    // convert the learnersData object into array format
+    return Object.values(learnersData).map(learnerData => {
+        learnerData.avg = (learnerData.totalWeightedScore / learnerData.totalPoints).toFixed(2);
+        // delete learnerData.totalPoints;
+        // delete learnerData.totalWeightedScore;
+        return learnerData;
+    });
 }
-// 
+
+// invoke the function, store the result
+const result = getLearnerData(CourseInfo, AssignmentGroup, LearnerSubmissions);
+
+console.log(result);
+
+//
+
+
+
+// const latePenaltyRate = 0.1; // Penalty rate for late submissions
+// let result = []; // Variable to store the final result
+
+// // check if AssignmentGroup and Course match
+// console.log(AssignmentGroup.course_id + ' compared to ' + CourseInfo.id) // expect a match
+// function checkCourseAssignmentMatch(course, ag) {
+//     try {
+//         if (ag.course_id !== course.id) {
+//             throw new Error('Invalid- AssignmentGroup does not match Course')
+//         }
+//     } catch (error) {
+//         console.error('An error has occurred:', error.message)
+//     }
+// }
+// // 
+// let assignment; // find the matching assignment.
+// for (let matching of ag.assignments) { // for of loop iterates over the assignments array in the object ag.
+//   if (matching.id === assignment_id) { // checks if id property === assignment_id.
+//     assignment = matching; // A match was found.
+//     break; // once a match is found then break.
+//   }
+// }
