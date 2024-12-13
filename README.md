@@ -1,23 +1,13 @@
 # SBA308
 ## Description
-This script takes in course data, assignment data and Learner submission data to return an array of objects grouped by Learner.<br>
+This script takes in three data structures, returns an array of objects grouped by learner.<br>
 
 Each object in the output contains the Learner's ID number, their average score, and an individual score for each assignment. The scores account for late submissions and does not include assignments whose due dates are in the future.
-
-## How to run
-1. Clone this repository.
-2. Open the script.js file in a code editor.
-3. Modify the CourseInfo, AssignmentGroup, and LearnerSubmissions data, if desired. - The data entries are provided at the top of the script.js file.
-4. Run the getLearnerData() to see output.
 
 ## Technologies Used
 Javascript
 
-## Future Updates
-Account for additional edge cases and errors.
-Refactor code to be more efficient and clean.
-
-### Note Date()
+### Note
 I received A LOT of help on this project and am still working out how parts of the code 
 actually function.
 
